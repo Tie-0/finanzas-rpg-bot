@@ -1,4 +1,12 @@
-# Finanzas RPG - Bot de WhatsApp con IA
-# Archivo principal - en construcción
+import os
+from supabase import create_client
 
-print("⚔️ Finanzas RPG iniciado correctamente")
+# Conexión a Supabase
+SUPABASE_URL = os.environ["SUPABASE_URL"]
+SUPABASE_KEY = os.environ["SUPABASE_KEY"]
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# Test de conexión
+resultado = supabase.table("perfil_jugador").select("*").execute()
+print("✅ Conexión exitosa!")
+print(f"Jugador encontrado: {resultado.data}")
