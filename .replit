@@ -11,3 +11,4 @@ channel = "stable-25_05"
 [userenv.shared]
 SUPABASE_URL = "https://dujmziruexiipgilrwli.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1am16aXJ1ZXhpaXBnaWxyd2xpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MzExMTUsImV4cCI6MjA5NzIwNzExNX0.I6DWeSjVX4DBkY_PoL95dOYnYPK77MtFbtB2J2oyNEk"
+GEMINI_API_KEY = "AQ.Ab8RN6IEbC5j2m42WZnAwbAT_KiAjJeXU_Ez3Ei_9_xM9zpoDw"
