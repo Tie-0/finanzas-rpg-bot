@@ -75,3 +75,25 @@ print("💾 Movimiento guardado en Supabase")
 
 xp_actual, nivel = otorgar_xp(JUGADOR_ID)
 print(f"⭐ +50 XP otorgados | XP actual: {xp_actual} | Nivel: {nivel}")
+
+def obtener_resumen(jugador_id: int):
+    """Genera un resumen RPG del estado actual del jugador."""
+    jugador = supabase.table("perfil_jugador").select("*").eq("id", jugador_id).execute().data[0]
+    movimientos = supabase.table("movimientos").select("*").eq("jugador_id", jugador_id).order("created_at", desc=True).limit(5).execute().data
+
+    resumen = f"""
+⚔️ === ESTADO DEL AVENTURERO === ⚔️
+🧙 Nombre: {jugador['nombre']}
+⭐ Nivel: {jugador['nivel']}
+✨ XP: {jugador['xp_actual']} / {jugador['xp_para_siguiente_nivel']}
+
+📜 Últimos movimientos:"""
+
+    for m in movimientos:
+        emoji = "💰" if m['tipo'] == "ingreso" else "💸"
+        resumen += f"\n  {emoji} {m['tipo'].upper()} | {m['monto']} {m['moneda']} | {m['categoria']}"
+
+    return resumen
+
+# --- SIMULACIÓN RESUMEN ---
+print("\n" + obtener_resumen(JUGADOR_ID))
