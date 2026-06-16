@@ -97,3 +97,32 @@ def obtener_resumen(jugador_id: int):
 
 # --- SIMULACIÓN RESUMEN ---
 print("\n" + obtener_resumen(JUGADOR_ID))
+
+def verificar_misiones(jugador_id: int, transaccion):
+    """Verifica si alguna misión se completó con este movimiento."""
+    misiones = supabase.table("misiones").select("*").eq("jugador_id", jugador_id).eq("activa", True).eq("completada", False).execute().data
+
+    for mision in misiones:
+        if mision["categoria"] != transaccion.categoria:
+            continue
+        if transaccion.moneda != mision["moneda"]:
+            continue
+
+        # Sumar gastos de esa categoría esta semana
+        gastos = supabase.table("movimientos").select("monto").eq("jugador_id", jugador_id).eq("categoria", transaccion.categoria).eq("tipo", "gasto").execute().data
+        total = sum(g["monto"] for g in gastos)
+
+        if total <= mision["limite_monto"]:
+            # Misión cumplida
+            supabase.table("misiones").update({"completada": True, "activa": False}).eq("id", mision["id"]).execute()
+            otorgar_xp(jugador_id, mision["xp_bonus"])
+            print(f"🏆 ¡MISIÓN COMPLETADA! '{mision['nombre']}' | +{mision['xp_bonus']} XP bonus")
+
+# --- SIMULACIÓN MISIÓN ---
+mensaje_gasto = "Gasté 3000 pesos en el cine"
+print(f"\n📨 Mensaje recibido: '{mensaje_gasto}'")
+transaccion2 = procesar_mensaje(mensaje_gasto)
+print(f"🧠 Gemini extrajo: {transaccion2}")
+guardar_movimiento(JUGADOR_ID, transaccion2)
+verificar_misiones(JUGADOR_ID, transaccion2)
+print("\n" + obtener_resumen(JUGADOR_ID))
