@@ -1,0 +1,6 @@
+flask
+supabase
+google-genai
+twilio
+python-dotenv
+pydantic
