@@ -109,7 +109,9 @@ def webhook():
         resp.message(respuesta)
     except Exception as e:
         resp.message("⚔️ El Master no pudo entender ese mensaje. ¿Podés describir mejor tu gasto o ingreso?")
-        print(f"Error: {e}")
+        import traceback
+print(f"Error: {e}")
+print(traceback.format_exc())
     return str(resp)
 
 if __name__ == "__main__":
