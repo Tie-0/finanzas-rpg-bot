@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import os
+import traceback
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
 from supabase import create_client
@@ -67,11 +68,7 @@ def otorgar_xp(jugador_id: int, xp: int = 50):
 def obtener_resumen(jugador_id: int):
     jugador = supabase.table("perfil_jugador").select("*").eq("id", jugador_id).execute().data[0]
     movimientos = supabase.table("movimientos").select("*").eq("jugador_id", jugador_id).order("created_at", desc=True).limit(5).execute().data
-    resumen = f"""⚔️ ESTADO DEL AVENTURERO ⚔️
-🧙 {jugador['nombre']} | Nivel {jugador['nivel']}
-✨ XP: {jugador['xp_actual']} / {jugador['xp_para_siguiente_nivel']}
-
-📜 Últimos movimientos:"""
+    resumen = f"⚔️ ESTADO DEL AVENTURERO ⚔️\n🧙 {jugador['nombre']} | Nivel {jugador['nivel']}\n✨ XP: {jugador['xp_actual']} / {jugador['xp_para_siguiente_nivel']}\n\n📜 Últimos movimientos:"
     for m in movimientos:
         emoji = "💰" if m['tipo'] == "ingreso" else "💸"
         resumen += f"\n{emoji} {m['tipo'].upper()} | {m['monto']} {m['moneda']} | {m['categoria']}"
@@ -99,19 +96,15 @@ def webhook():
             "xp_otorgado": 50
         }).execute()
         xp_actual, nivel, level_up = otorgar_xp(jugador_id)
-        respuesta = f"""⚔️ ¡Registro guardado, Aventurero!
-
-{'💰 INGRESO' if transaccion.tipo == 'ingreso' else '💸 GASTO'} | {transaccion.monto} {transaccion.moneda}
-📂 Categoría: {transaccion.categoria}
-⭐ +50 XP | Total: {xp_actual} / 100"""
+        emoji_tipo = "💰 INGRESO" if transaccion.tipo == "ingreso" else "💸 GASTO"
+        respuesta = f"⚔️ ¡Registro guardado, Aventurero!\n\n{emoji_tipo} | {transaccion.monto} {transaccion.moneda}\n📂 Categoría: {transaccion.categoria}\n⭐ +50 XP | Total: {xp_actual} / 100"
         if level_up:
             respuesta += f"\n\n🎮 ¡LEVEL UP! ¡Ahora eres Nivel {nivel}!"
         resp.message(respuesta)
     except Exception as e:
+        print(f"Error: {e}")
+        print(traceback.format_exc())
         resp.message("⚔️ El Master no pudo entender ese mensaje. ¿Podés describir mejor tu gasto o ingreso?")
-        import traceback
-print(f"Error: {e}")
-print(traceback.format_exc())
     return str(resp)
 
 if __name__ == "__main__":
